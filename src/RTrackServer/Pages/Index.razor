@@ -1,0 +1,15 @@
+@page "/"
+@using Microsoft.Extensions.Hosting
+@inject IHostApplicationLifetime lifetime
+
+<h1>Hello, world!</h1>
+
+<button @onclick="quitApp">Quit</button>
+
+@code {
+
+    void quitApp() {
+        lifetime.StopApplication();
+    }
+
+}
