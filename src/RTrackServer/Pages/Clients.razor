@@ -1,17 +1,31 @@
 @page "/clients"
 @using RTrackServer.Services
+@using RTrackServer.Domain
 @inject ITrackerService service
 
 <h3>Clients</h3>
 
 <main>
-    @foreach (var client in clients) {
-        <div>@client</div>
-    }
+    <table>
+        <thead>
+        <tr>
+            <th>Client IP</th><th>Last Updated</th><th>Elapsed</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var client in clients) {
+            <tr>
+                <td>@client.EndPoint</td>
+                <td>@client.LastUpdate.ToLocalTime()</td>
+                <td>@client.LastUpdateInterval.TotalSeconds.ToString("N2")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
 </main>
 
 @code {
-    string[] clients = Array.Empty<string>();
+    ClientTracker[] clients = Array.Empty<ClientTracker>();
 
     protected override async Task OnInitializedAsync() {
         clients = await service.GetTrackingClients();

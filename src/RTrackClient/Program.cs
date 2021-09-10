@@ -27,7 +27,7 @@ namespace RTrackClient
 
     sealed class ActorEngine : IHostedService
     {
-        ActorSystem system;
+        ActorSystem system = null!;
         readonly IServiceProvider serviceProvider;
         public ActorEngine(IServiceProvider serviceProvider) {
             this.serviceProvider = serviceProvider;

@@ -20,4 +20,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\..\Workspace\private\RTracker\src\RTrack.Common\RTrack.Common.csproj" />
+  </ItemGroup>
+
 </Project>

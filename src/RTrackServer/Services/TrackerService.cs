@@ -14,12 +14,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using RTrack.Common;
+using RTrackServer.Domain;
 
 namespace RTrackServer.Services
 {
     public interface ITrackerService
     {
-        Task<string[]> GetTrackingClients();
+        Task<ClientTracker[]> GetTrackingClients();
     }
 
     public sealed class TrackerService : IHostedService, ITrackerService
@@ -49,13 +51,13 @@ namespace RTrackServer.Services
         public Task StopAsync(CancellationToken cancellationToken) =>
             CoordinatedShutdown.Get(system).Run(CoordinatedShutdown.ClrExitReason.Instance);
 
-        public Task<string[]> GetTrackingClients() =>
-            tracker.Ask<string[]>(new Tracker.GetTrackedClients());
+        public Task<ClientTracker[]> GetTrackingClients() =>
+            tracker.Ask<ClientTracker[]>(new Tracker.GetTrackedClients());
     }
 
     sealed class Tracker : ReceiveActor
     {
-        readonly Dictionary<IPEndPoint, DateTime> trackedClients = new ();
+        readonly Dictionary<IP4EndPoint, ClientTracker> trackedClients = new ();
 
         public Tracker(ILogger logger, int port) {
             logger.LogDebug("Tracker is being started!");
@@ -63,30 +65,27 @@ namespace RTrackServer.Services
 
             Receive<Tcp.Bound>(bound => logger.LogInformation("Listening on {$Address}", bound.LocalAddress));
             Receive<Tcp.Connected>(client => {
-                var endpoint = (IPEndPoint)client.RemoteAddress;
+                var endpoint = IP4EndPoint.From((IPEndPoint)client.RemoteAddress);
                 logger.LogInformation("New connection from {EndPoint}", endpoint);
 
-                trackedClients[endpoint] = DateTime.UtcNow;
-                var connection = Context.ActorOf(Props.Create(() => new TrackerConnection(endpoint, Self, Sender)));
+                var tracker = new ClientTracker(endpoint);
+                trackedClients[endpoint] = tracker;
+                var connection = Context.ActorOf(Props.Create(() => new TrackerConnection(logger, tracker, Sender)));
                 Sender.Tell(new Tcp.Register(connection));
             });
 
-            Receive<Ping>(ping => {
-                logger.LogDebug("Endpoint {EndPoint} is pinging!", ping.EndPoint);
-                trackedClients[ping.EndPoint] = DateTime.UtcNow;
-            });
-            Receive<GetTrackedClients>(_ => Sender.Tell(trackedClients.Keys.Select(ep => ep.ToString()).ToArray()));
+            Receive<GetTrackedClients>(_ => Sender.Tell(trackedClients.Values.ToArray()));
         }
 
-        public sealed record Ping(IPEndPoint EndPoint);
         public sealed record GetTrackedClients;
     }
 
     sealed class TrackerConnection : ReceiveActor
     {
-        public TrackerConnection(IPEndPoint myself, IActorRef parent, IActorRef connection) {
+        public TrackerConnection(ILogger logger, ClientTracker myself, IActorRef connection) {
             Receive<Tcp.Received>(ping => {
-                parent.Tell(new Tracker.Ping(myself));
+                var elapsed = myself.Ping(DateTime.UtcNow);
+                logger.LogDebug("Endpoint {EndPoint} is pinging! Elasped in {Seconds} seconds", myself.EndPoint, elapsed.TotalSeconds);
                 connection.Tell(Tcp.Write.Create(ping.Data));
             });
         }
