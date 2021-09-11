@@ -1,7 +1,9 @@
 @page "/clients"
 @using RTrackServer.Services
 @using RTrackServer.Domain
+@using System.Timers
 @inject ITrackerService service
+@implements IDisposable
 
 <h3>Clients</h3>
 
@@ -9,15 +11,17 @@
     <table>
         <thead>
         <tr>
-            <th>Client IP</th><th>Last Updated</th><th>Elapsed</th>
+            <th scope="col" style="width: 50%">Client IP</th>
+            <th scope="col" style="width: 30%">Last Updated</th>
+            <th scope="col" style="width: 20%">Elapsed</th>
         </tr>
         </thead>
         <tbody>
         @foreach (var client in clients) {
-            <tr>
+            <tr @key="@client.EndPoint">
                 <td>@client.EndPoint</td>
                 <td>@client.LastUpdate.ToLocalTime()</td>
-                <td>@client.LastUpdateInterval.TotalSeconds.ToString("N2")</td>
+                <td>@client.SinceLastUpdate(now).TotalSeconds.ToString("N2")</td>
             </tr>
         }
         </tbody>
@@ -25,9 +29,23 @@
 </main>
 
 @code {
+    readonly Timer poller = new(1000) { AutoReset = true };
     ClientTracker[] clients = Array.Empty<ClientTracker>();
+    DateTime now = DateTime.UtcNow;
 
-    protected override async Task OnInitializedAsync() {
-        clients = await service.GetTrackingClients();
+    protected override void OnInitialized() {
+        poller.Elapsed += (_, args) => {
+            now = args.SignalTime.ToUniversalTime();
+            InvokeAsync(async () => {
+                clients = await service.GetTrackingClients();
+                StateHasChanged();
+            });
+        };
+        poller.Enabled = true;
     }
+
+    public void Dispose() {
+        poller.Dispose();
+    }
+
 }

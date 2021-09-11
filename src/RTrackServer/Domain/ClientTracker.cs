@@ -12,12 +12,13 @@ namespace RTrackServer.Domain
 
         public IP4EndPoint EndPoint { get; }
         public DateTime LastUpdate { get; private set; }
-        public TimeSpan LastUpdateInterval { get; private set; }
 
         public TimeSpan Ping(DateTime now) {
-            LastUpdateInterval = now - LastUpdate;
+            var lastUpdateInterval = SinceLastUpdate(now);
             LastUpdate = now;
-            return LastUpdateInterval;
+            return lastUpdateInterval;
         }
+
+        public TimeSpan SinceLastUpdate(DateTime now) => now - LastUpdate;
     }
 }

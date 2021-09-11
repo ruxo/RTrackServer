@@ -11,6 +11,8 @@ namespace RTrackClient
 {
     public sealed class RTrackClient : ReceiveActor, IWithTimers
     {
+        static readonly TimeSpan PongCheckInterval = 10.Seconds();
+
         readonly ILogger logger;
         readonly IP4EndPoint host;
         readonly Random random = new();
@@ -31,7 +33,7 @@ namespace RTrackClient
                     pongCheck = DateTime.UtcNow.Ticks.ToString();
                     logger.LogDebug("Ping with {PongCheck}", pongCheck);
                     sender.Tell(Tcp.Write.Create(ByteString.FromString(pongCheck, Encoding.UTF8)));
-                    Timers.StartSingleTimer("checkPong", new CheckPong(pongCheck), 30.Seconds());
+                    Timers.StartSingleTimer("checkPong", new CheckPong(pongCheck), PongCheckInterval);
                 });
                 Receive<Tcp.Received>(received => {
                     var pong = received.Data.ToString(Encoding.UTF8);
