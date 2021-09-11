@@ -85,7 +85,7 @@ namespace RTrackClient
 
         void ConnectHost(IP4EndPoint ep) {
             logger.LogDebug("Connect to host {EndPoint}", ep);
-            Context.System.Tcp().Tell(new Tcp.Connect(new DnsEndPoint(ep.Host, ep.Port)));
+            Context.System.Tcp().Tell(new Tcp.Connect(ep.ToNetEndPoint()));
         }
 
         void OneShot<T>(int minSec, int maxSec) where T: new() =>

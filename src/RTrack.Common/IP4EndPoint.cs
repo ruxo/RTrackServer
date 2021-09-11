@@ -31,5 +31,7 @@ namespace RTrack.Common
         }
         public string Host { get; }
         public int Port { get; }
+
+        public IPEndPoint ToNetEndPoint() => new (IPAddress.Parse(Host), Port);
     }
 }
