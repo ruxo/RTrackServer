@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\..\Workspace\private\RTracker\src\RTrack.Common\RTrack.Common.csproj" />
+    <ProjectReference Include="..\RTrack.Common\RTrack.Common.csproj" />
   </ItemGroup>
 
 </Project>

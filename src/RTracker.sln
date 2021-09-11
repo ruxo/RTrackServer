@@ -1,15 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RTrackServer", "..\..\..\..\Data\Workspace\private\RTracker\src\RTrackServer\RTrackServer.csproj", "{672FE5F3-A9A6-48A0-A6F2-8F0425D4D407}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RTrackServer", "RTrackServer\RTrackServer.csproj", "{672FE5F3-A9A6-48A0-A6F2-8F0425D4D407}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RTrackClient", "..\..\..\..\Data\Workspace\private\RTracker\src\RTrackClient\RTrackClient.csproj", "{F1A2F941-BA30-4A43-B88E-F4E8474E622D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RTrackClient", "RTrackClient\RTrackClient.csproj", "{F1A2F941-BA30-4A43-B88E-F4E8474E622D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RTrack.Common", "RTrack.Common\RTrack.Common.csproj", "{84E00B8D-9739-492C-9354-AE30A5795935}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution", "Solution", "{6757BAE7-0AF8-445F-9858-5201A0A8A9D4}"
 ProjectSection(SolutionItems) = preProject
-	..\..\..\..\Data\Workspace\private\RTracker\src\RTrackServer.Dockerfile = ..\..\..\..\Data\Workspace\private\RTracker\src\RTrackServer.Dockerfile
-	..\..\..\..\Data\Workspace\private\RTracker\.gitignore = ..\..\..\..\Data\Workspace\private\RTracker\.gitignore
+	.\RTrackServer.Dockerfile = .\RTrackServer.Dockerfile
+	.gitignore = ..\.gitignore
 EndProjectSection
 EndProject
 Global
