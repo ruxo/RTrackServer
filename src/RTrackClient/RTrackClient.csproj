@@ -2,16 +2,17 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Akka" Version="1.4.25" />
+    <PackageReference Include="Akka" Version="1.4.37" />
     <PackageReference Include="Akka.Bootstrap.Docker" Version="0.5.3" />
-    <PackageReference Include="Akka.DependencyInjection" Version="1.4.25" />
-    <PackageReference Include="LanguageExt.Core" Version="3.4.15" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+    <PackageReference Include="Akka.DependencyInjection" Version="1.4.37" />
+    <PackageReference Include="LanguageExt.Core" Version="4.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
   </ItemGroup>
 
   <ItemGroup>
