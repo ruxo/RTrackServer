@@ -12,6 +12,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution", "Solution", "{6757BAE7-0AF8-445F-9858-5201A0A8A9D4}"
 	ProjectSection(SolutionItems) = preProject
 		..\.gitignore = ..\.gitignore
+		RTrackServer.Dockerfile = RTrackServer.Dockerfile
 	EndProjectSection
 EndProject
 Global

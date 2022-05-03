@@ -2,6 +2,7 @@ using System;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -14,6 +15,13 @@ builder.Services.AddHostedService(sp => (TrackerService)sp.GetRequiredService<IT
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+
+if (string.Equals(Environment.GetEnvironmentVariable("ASPNETCORE_FORWARDEDHEADERS_ENABLED"), "true", StringComparison.OrdinalIgnoreCase))
+    builder.Services.Configure<ForwardedHeadersOptions>(opts => {
+        opts.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        opts.KnownNetworks.Clear();
+        opts.KnownProxies.Clear();
+    });
 
 var credentials = builder.Configuration.GetRequiredSection("TiraxAuthenticator").Get<OAuthCredentials>();
 
@@ -42,6 +50,9 @@ var app = builder.Build();
 var basePath = builder.Configuration["BasePath"] ?? "/";
 Console.WriteLine("BasePath = {0}", basePath);
 app.UsePathBase(basePath);
+
+app.UseForwardedHeaders();
+
 if (builder.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 else {
