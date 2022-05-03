@@ -1,4 +1,6 @@
 using System;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -8,6 +10,12 @@ using RTrackServer.Services;
 
 namespace RTrackServer
 {
+    sealed class OAuthCredentials
+    {
+        public string ClientId { get; set; } = string.Empty;
+        public string ClientSecret { get; set; } = string.Empty;
+    }
+
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -25,6 +33,28 @@ namespace RTrackServer
 
             services.AddRazorPages();
             services.AddServerSideBlazor();
+
+            var credentials = Configuration.GetRequiredSection("TiraxAuthenticator").Get<OAuthCredentials>();
+
+            services.AddAuthentication(opt => {
+                         opt.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                         opt.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                         opt.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+                     })
+                    .AddCookie()
+                    .AddOpenIdConnect("oidc",
+                                      opts => {
+                                          opts.Authority = "https://auth.tirax.tech/";
+                                          opts.ClientSecret = credentials.ClientSecret;
+                                          opts.ClientId = credentials.ClientId;
+                                          opts.UsePkce = true;
+                                          opts.ResponseType = "code";
+                                          opts.SaveTokens = true;
+                                          opts.GetClaimsFromUserInfoEndpoint = true;
+                                          opts.Scope.Add("openid");
+                                          opts.Scope.Add("profile");
+                                          opts.TokenValidationParameters = new(){ NameClaimType = "name" };
+                                      });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -43,6 +73,9 @@ namespace RTrackServer
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            app.UseAuthentication();
+            app.UseAuthentication();
 
             app.UseStaticFiles();
 

@@ -1,6 +1,19 @@
-﻿<Router AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true">
+﻿@inject NavigationManager UriHelper
+
+<CascadingAuthenticationState>
+<Router AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+            <NotAuthorized>
+                @{
+                    var returnUrl = UriHelper.ToBaseRelativePath(UriHelper.Uri);
+                    UriHelper.NavigateTo($"login?redirectUri={returnUrl}", forceLoad: true);
+                }
+            </NotAuthorized>
+            <Authorizing>
+                Loading...
+            </Authorizing>
+        </AuthorizeRouteView>
     </Found>
     <NotFound>
         <LayoutView Layout="@typeof(MainLayout)">
@@ -8,3 +21,4 @@
         </LayoutView>
     </NotFound>
 </Router>
+</CascadingAuthenticationState>
