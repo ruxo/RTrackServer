@@ -6,7 +6,7 @@
         <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
             <NotAuthorized>
                 @{
-                    var returnUrl = UriHelper.ToBaseRelativePath(UriHelper.Uri);
+                    var returnUrl = new Uri(UriHelper.Uri).PathAndQuery;
                     UriHelper.NavigateTo($"login?redirectUri={returnUrl}", forceLoad: true);
                 }
             </NotAuthorized>
