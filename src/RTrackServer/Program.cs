@@ -2,14 +2,16 @@ using System;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using RTrackServer.Domain;
 using RTrackServer.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<AppConfig>(builder.Configuration);
 
 builder.Services.AddSingleton<ITrackerService, TrackerService>();
 builder.Services.AddHostedService(sp => (TrackerService)sp.GetRequiredService<ITrackerService>());
@@ -17,12 +19,11 @@ builder.Services.AddHostedService(sp => (TrackerService)sp.GetRequiredService<IT
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
-if (string.Equals(Environment.GetEnvironmentVariable("ASPNETCORE_FORWARDEDHEADERS_ENABLED"), "true", StringComparison.OrdinalIgnoreCase))
-    builder.Services.Configure<ForwardedHeadersOptions>(opts => {
-        opts.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-        opts.KnownNetworks.Clear();
-        opts.KnownProxies.Clear();
-    });
+builder.Services.Configure<ForwardedHeadersOptions>(opts => {
+    opts.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    opts.KnownNetworks.Clear();
+    opts.KnownProxies.Clear();
+});
 
 var credentials = builder.Configuration.GetRequiredSection("TiraxAuthenticator").Get<OAuthCredentials>();
 
@@ -37,10 +38,9 @@ builder.Services.AddAuthentication(opt => {
        .AddCookie()
        .AddOpenIdConnect("oidc",
                          opts => {
-                             opts.CallbackPath = new PathString(basePath).Add("/signin-oidc");
                              opts.Authority = "https://auth.tirax.tech/";
-                             opts.ClientSecret = credentials.ClientSecret;
                              opts.ClientId = credentials.ClientId;
+                             opts.ClientSecret = credentials.ClientSecret;
                              opts.UsePkce = true;
                              opts.ResponseType = "code";
                              opts.SaveTokens = true;
