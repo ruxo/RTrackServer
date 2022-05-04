@@ -2,6 +2,7 @@ using System;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +26,9 @@ if (string.Equals(Environment.GetEnvironmentVariable("ASPNETCORE_FORWARDEDHEADER
 
 var credentials = builder.Configuration.GetRequiredSection("TiraxAuthenticator").Get<OAuthCredentials>();
 
+var basePath = builder.Configuration["BasePath"] ?? "/";
+Console.WriteLine("BasePath = {0}", basePath);
+
 builder.Services.AddAuthentication(opt => {
             opt.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             opt.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -33,6 +37,7 @@ builder.Services.AddAuthentication(opt => {
        .AddCookie()
        .AddOpenIdConnect("oidc",
                          opts => {
+                             opts.CallbackPath = new PathString(basePath).Add("/signin-oidc");
                              opts.Authority = "https://auth.tirax.tech/";
                              opts.ClientSecret = credentials.ClientSecret;
                              opts.ClientId = credentials.ClientId;
@@ -47,10 +52,7 @@ builder.Services.AddAuthentication(opt => {
 
 var app = builder.Build();
 
-var basePath = builder.Configuration["BasePath"] ?? "/";
-Console.WriteLine("BasePath = {0}", basePath);
 app.UsePathBase(basePath);
-
 app.UseForwardedHeaders();
 
 if (builder.Environment.IsDevelopment())
